@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142c4f">
+  <meta name="description" content="날짜와 공정을 입력하면 완성되는 7일 공정표. 오전·오후로 일정을 정하고 A4 가로로 인쇄하거나 PDF로 저장하세요.">
+  <title>BCH 주간 공정표 | 브로클린하우스</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./app.css">
+  <link rel="stylesheet" href="./print.css" media="print">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body data-mobile-view="edit">
+  <header class="app-header no-print">
+    <div class="header-inner">
+      <a class="brand" href="./" aria-label="BCH 주간 공정표 홈">
+        <span class="brand-mark">BCH</span>
+        <span class="brand-text"><strong>주간 공정표</strong><small>BROCLEANHOUSE</small></span>
+      </a>
+      <div class="header-actions">
+        <span class="save-status" id="saveStatus" role="status">자동 저장 준비</span>
+        <button class="btn btn-ghost" id="importBtn" type="button"><span data-icon="upload"></span><span>불러오기</span></button>
+        <button class="btn btn-secondary" id="exportBtn" type="button"><span data-icon="download"></span><span>파일로 저장</span></button>
+        <button class="btn btn-primary" id="printBtn" type="button"><span data-icon="print"></span><span>인쇄 / PDF</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="intro no-print">
+      <div><p class="eyebrow">WEEKLY CONSTRUCTION PLANNER</p><h1>입력하면, 공정표 완성.</h1><p>날짜와 공정을 자유롭게 정하고, 오전·오후 일정을 한눈에 확인하세요.</p></div>
+      <div class="intro-badge"><span data-icon="calendar"></span>7일 일정 · 오전 / 오후 · A4 가로</div>
+    </section>
+    <nav class="mobile-tabs no-print" aria-label="작업 화면 선택">
+      <button class="active" data-mobile-view="edit" type="button" aria-pressed="true"><span data-icon="edit"></span>입력하기</button>
+      <button data-mobile-view="preview" type="button" aria-pressed="false"><span data-icon="eye"></span>공정표 보기</button>
+    </nav>
+    <div class="workspace">
+      <aside class="editor-panel no-print" aria-label="공정표 입력">
+        <section class="panel-card">
+          <div class="card-heading"><span class="step-number">01</span><div><h2>현장과 날짜</h2><p>시작일부터 7일이 자동으로 채워집니다.</p></div></div>
+          <form id="metaForm" class="form-grid" autocomplete="off">
+            <div class="field full"><label for="site">현장명</label><input id="site" data-meta="site" maxlength="100" placeholder="예: ○○아파트 101동 1001호"></div>
+            <div class="field full"><label for="title">공정표 제목</label><input id="title" data-meta="title" maxlength="60" placeholder="주간 공정표"></div>
+            <div class="field full"><label for="startDate">시작일</label><input id="startDate" data-meta="startDate" type="date" min="1000-01-01" max="9999-12-25" required aria-describedby="dateRange"></div>
+            <p class="date-range full" id="dateRange"></p>
+            <div class="field full"><label for="address">현장 주소 <span class="optional">선택</span></label><input id="address" data-meta="address" maxlength="180" placeholder="주소 또는 현장 위치"></div>
+            <div class="field"><label for="manager">담당자 <span class="optional">선택</span></label><input id="manager" data-meta="manager" maxlength="50" placeholder="담당자 이름"></div>
+            <div class="field"><label for="phone">연락처 <span class="optional">선택</span></label><input id="phone" data-meta="phone" type="tel" maxlength="40" placeholder="010-0000-0000"></div>
+            <div class="field full"><label for="company">작성 업체</label><input id="company" data-meta="company" maxlength="60" placeholder="브로클린하우스"></div>
+          </form>
+        </section>
+
+        <section class="panel-card" aria-labelledby="taskHeading">
+          <div class="tasks-heading"><div class="card-heading"><span class="step-number">02</span><h2 id="taskHeading">공정과 시간</h2><span class="task-count" id="taskCount">0</span></div></div>
+          <p class="task-help">공정명을 입력하고, 작업할 날짜의 <strong>오전·오후</strong>를 눌러주세요. 둘 다 누르면 종일입니다.</p>
+          <div id="taskList" class="task-list"></div>
+          <button class="btn btn-secondary btn-full add-task" id="addTask" type="button"><span data-icon="plus"></span>공정 추가</button>
+          <div class="template-actions"><button class="btn btn-ghost btn-small" id="exampleBtn" type="button">예시 불러오기</button><button class="btn btn-ghost btn-small" id="newBtn" type="button">빈 공정표로 시작</button></div>
+        </section>
+
+        <section class="panel-card">
+          <div class="card-heading"><span class="step-number">03</span><h2>안내사항</h2></div>
+          <div class="field"><label for="notes">공정표 하단 안내 <span class="optional">선택</span></label><textarea id="notes" data-meta="notes" maxlength="2000" rows="4" placeholder="예: 현장 상황에 따라 일정이 변경될 수 있습니다.&#10;주말에는 비소음 작업만 진행합니다."></textarea></div>
+        </section>
+        <p class="storage-note"><span data-icon="shield"></span><span>이 브라우저에 자동 저장됩니다. 다른 기기에서 이어 쓰려면 ‘파일로 저장’ 후 불러오세요.</span></p>
+      </aside>
+
+      <section class="preview-panel" aria-label="완성 공정표 미리보기">
+        <div class="preview-toolbar no-print"><div class="toolbar-left"><span class="live-dot"></span><strong>실시간 미리보기</strong><small>A4 가로 · 297 × 210 mm</small></div><div class="view-switch"><button class="active" id="editView" type="button" aria-pressed="true">편집 + 미리보기</button><button id="fullView" type="button" aria-pressed="false">크게 보기</button></div></div>
+        <div class="preview-scroll" id="previewScroll">
+          <div class="paper-stage" id="paperStage"><article class="paper" id="printArea" aria-label="인쇄할 주간 공정표"></article></div>
+        </div>
+        <div class="schedule-summary no-print"><div class="summary-items"><span class="summary-item">공정 <strong id="summaryProcesses">0개</strong></span><span class="summary-item">작업일 <strong id="summaryDays">0일</strong></span><span class="summary-item">선택 시간 <strong id="summarySlots">0칸</strong></span></div><p class="overflow-note">공정표의 시간 칸을 눌러도 바로 수정할 수 있어요.</p></div>
+        <div class="print-tip no-print"><span data-icon="info"></span><span><strong>인쇄 / PDF</strong>에서 프린터 또는 ‘PDF로 저장’을 선택하세요. 공정이 많으면 다음 페이지로 이어집니다.</span></div>
+      </section>
+    </div>
+  </main>
+
+  <input type="file" id="importFile" accept=".json,application/json" hidden>
+  <div class="toast no-print" id="toast" role="status" hidden></div>
+  <dialog class="modal no-print" id="confirmDialog" aria-labelledby="confirmTitle" aria-describedby="confirmText"><h2 id="confirmTitle"></h2><p id="confirmText"></p><div class="modal-actions"><button class="btn btn-secondary" id="confirmCancel" type="button">취소</button><button class="btn btn-primary" id="confirmOk" type="button">계속</button></div></dialog>
+  <noscript><div class="noscript-message">공정표를 작성하려면 브라우저의 JavaScript를 켜주세요.</div></noscript>
+</body>
+</html>
